@@ -16,6 +16,24 @@
             height: 100vh;
             margin: 0;
         }
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .upload-container {
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .title {
+            margin-left: 20px;
+        }
         .table-container {
             width: 100%;
             flex: 1;
@@ -53,16 +71,17 @@
             bottom: 0;
             width: 100%;
         }
-        .upload-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
     </style>
 </head>
 <body>
-    <div class="upload-container">
-        <input type="file" id="upload" />
+    <div class="header">
+        <div class="title">
+            <h1>線上計分表</h1>
+        </div>
+        <div class="upload-container">
+            <input type="password" id="password" placeholder="輸入密碼" />
+            <input type="file" id="upload" />
+        </div>
     </div>
     <div class="table-container">
         <table id="output"></table>
@@ -73,6 +92,11 @@
 
     <script>
         document.getElementById('upload').addEventListener('change', (event) => {
+            const password = document.getElementById('password').value;
+            if (password !== '123') {
+                alert('密碼錯誤');
+                return;
+            }
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = (e) => {

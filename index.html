@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,106 +10,50 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-        }
-        .header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-        }
-        .upload-container {
-            background-color: white;
-            padding: 10px;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            border-radius: 5px;
-        }
-        .title {
-            margin-left: 20px;
+            position: relative;
         }
         .table-container {
             width: 100%;
-            flex: 1;
+            height: 100%;
             overflow: auto;
+            margin-top: 0; /* 調整邊距以避免與標題重疊 */
         }
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 0;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            font-size: 1.5em; /* 放大字體大小 */
-            table-layout: fixed;
+            font-size: 1.2em; /* 調整字體大小以適應手機 */
+            table-layout: auto; /* 調整為自動佈局 */
         }
         th, td {
-            padding: 20px; /* 增加內距 */
+            padding: 10px; /* 調整內距 */
             border: 1px solid #ddd;
             text-align: center; /* 字體置中 */
+            word-wrap: break-word; /* 自動換行 */
         }
         th {
             background-color: #4CAF50;
             color: white;
             position: sticky;
-            top: 0;
+            top: 0; /* 調整以避免與標題重疊 */
             z-index: 1;
         }
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        footer {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 0.1em; /* 減少內距 */
-            position: sticky;
-            bottom: 0;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="title">
-            <h1>線上計分表</h1>
-        </div>
-        <div class="upload-container">
-            <input type="password" id="password" placeholder="輸入密碼" />
-            <input type="file" id="upload" />
-        </div>
-    </div>
     <div class="table-container">
         <table id="output"></table>
     </div>
-    <footer>
-        <p>© 2024 線上計分表</p>
-    </footer>
 
     <script>
-        document.getElementById('upload').addEventListener('change', (event) => {
-            const password = document.getElementById('password').value;
-            if (password !== '123') {
-                alert('密碼錯誤');
-                return;
-            }
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                displayData(jsonData);
-                uploadToGitHub(file);
-            };
-            reader.readAsArrayBuffer(file);
-        });
-
         function fetchDataAndUpdate() {
             fetch('score.xlsx')
                 .then(response => response.arrayBuffer())
@@ -134,38 +78,6 @@
                 });
                 table.appendChild(tr);
             });
-        }
-
-        function uploadToGitHub(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                const base64Content = btoa(content);
-                const repo = 'charlie960906/casino_score';
-                const path = 'score.xlsx';
-                const branch = 'main';
-                const token = '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';
-
-                fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Update score.xlsx',
-                        content: base64Content,
-                        branch: branch
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        console.log('File uploaded successfully');
-                    } else {
-                        console.error('File upload failed');
-                    }
-                });
-            };
-            reader.readAsBinaryString(file);
         }
 
         setInterval(fetchDataAndUpdate, 5000); // 每5秒更新一次資料
